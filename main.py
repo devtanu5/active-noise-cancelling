@@ -99,7 +99,8 @@ def main():
     hop = ns.hop
     q_out = queue.Queue(maxsize=8)
     
-    recorded_frames = []
+    recorded_clean_frames = []
+    recorded_noisy_frames = []
     save_output = bool(cfg.get("output_path"))
 
     def callback(indata, outdata, frames, time_info, status):
@@ -116,7 +117,8 @@ def main():
         if outdata.shape[1] > 1:
             outdata[:, 1] = y
         if save_output:
-            recorded_frames.append(y.copy())
+            recorded_clean_frames.append(y.copy())
+            recorded_noisy_frames.append(x.copy())
         # Non-critical monitoring
         try:
             q_out.put_nowait(float(np.sqrt(np.mean(y**2))))
@@ -166,11 +168,27 @@ def main():
         except KeyboardInterrupt:
             print("\nStopping…")
 
-    if save_output and recorded_frames:
-        print(f"• Saving denoised audio to {cfg['output_path']}...")
-        full_audio = np.concatenate(recorded_frames)
-        wav_write(cfg["output_path"], sr, full_audio)
-        print("• Audio saved successfully!")
+    if save_output and recorded_clean_frames:
+        import os
+        base_path = cfg["output_path"]
+        root, ext = os.path.splitext(base_path)
+        if not ext:
+            ext = ".wav"
+            base_path += ext
+            root, ext = os.path.splitext(base_path)
+            
+        clean_path = base_path
+        noisy_path = f"{root}_original{ext}"
+        
+        print(f"• Saving denoised audio to {clean_path}...")
+        full_clean = np.concatenate(recorded_clean_frames)
+        wav_write(clean_path, sr, full_clean)
+        
+        print(f"• Saving original audio to {noisy_path}...")
+        full_noisy = np.concatenate(recorded_noisy_frames)
+        wav_write(noisy_path, sr, full_noisy)
+        
+        print("• Audio files saved successfully!")
 
 if __name__ == "__main__":
     main()
