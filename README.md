@@ -178,7 +178,7 @@ MIT
 
 ## 🙌 Acknowledgements
 
-- **[DevtanuBarman111](https://github.com/DevtanuBarman111)** - Initial project author and core real-time ANC implementation.
+- **[devtanu5](https://github.com/devtanu5)** - Initial project author and core real-time ANC implementation.
 - **[shadcy](https://github.com/shadcy)** (`@shadcy`) - Benchmarking & Performance Suite, latency and OLA buffering analysis, CPU profiler, and multi-dimensional DSP metrics.
 - `sounddevice` (PortAudio) for reliable cross-platform audio I/O.
 - Classic spectral subtraction and Wiener filtering literature for single-channel speech enhancement.
