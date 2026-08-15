@@ -6,6 +6,7 @@ import yaml
 
 import numpy as np
 import sounddevice as sd
+from scipy.io.wavfile import write as wav_write
 
 from dsp import NoiseSuppressor
 
@@ -26,6 +27,7 @@ def parse_args():
     p.add_argument("--wiener_alpha", type=float, default=None, help="Wiener DD smoothing factor (0 to 1)")
     p.add_argument("--gate_threshold_db", type=float, default=None, help="Gating threshold in dB")
     p.add_argument("--gate_attenuation_db", type=float, default=None, help="Gating attenuation level in dB")
+    p.add_argument("--output", type=str, default=None, help="Path to save the denoised audio as a WAV file (e.g. output.wav)")
     p.add_argument("--config", type=str, default="config.yaml")
     p.add_argument("--list-devices", action="store_true", help="Print available devices and exit")
     return p.parse_args()
@@ -46,6 +48,7 @@ def load_config(path: str):
         "wiener_alpha": 0.98,
         "gate_threshold_db": 6.0,
         "gate_attenuation_db": -20.0,
+        "output_path": "",
     }
     try:
         with open(path, "r", encoding="utf-8") as f:
@@ -74,6 +77,7 @@ def main():
     if args.wiener_alpha is not None:         cfg["wiener_alpha"] = args.wiener_alpha
     if args.gate_threshold_db is not None:    cfg["gate_threshold_db"] = args.gate_threshold_db
     if args.gate_attenuation_db is not None:  cfg["gate_attenuation_db"] = args.gate_attenuation_db
+    if args.output is not None:               cfg["output_path"] = args.output
 
     sr = int(cfg["samplerate"])
     frame_ms = int(cfg["frame_ms"])
@@ -94,6 +98,9 @@ def main():
 
     hop = ns.hop
     q_out = queue.Queue(maxsize=8)
+    
+    recorded_frames = []
+    save_output = bool(cfg.get("output_path"))
 
     def callback(indata, outdata, frames, time_info, status):
         if status:
@@ -108,6 +115,8 @@ def main():
         outdata[:, 0] = y
         if outdata.shape[1] > 1:
             outdata[:, 1] = y
+        if save_output:
+            recorded_frames.append(y.copy())
         # Non-critical monitoring
         try:
             q_out.put_nowait(float(np.sqrt(np.mean(y**2))))
@@ -156,6 +165,12 @@ def main():
                 time.sleep(0.5)
         except KeyboardInterrupt:
             print("\nStopping…")
+
+    if save_output and recorded_frames:
+        print(f"• Saving denoised audio to {cfg['output_path']}...")
+        full_audio = np.concatenate(recorded_frames)
+        wav_write(cfg["output_path"], sr, full_audio)
+        print("• Audio saved successfully!")
 
 if __name__ == "__main__":
     main()
