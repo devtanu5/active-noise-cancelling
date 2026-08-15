@@ -2,7 +2,7 @@
 
 > Low-latency, real-time microphone noise suppression in Python using spectral subtraction + adaptive noise tracking and 50% overlap-add (OLA). Works cross-platform with PortAudio via `sounddevice`.
 
-https://github.com/DevtanuBarman111
+https://github.com/devtanu5
 https://github.com/shadcy (Benchmarking & Performance Suite by @shadcy)
 
 ---
