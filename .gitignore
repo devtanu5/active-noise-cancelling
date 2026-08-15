@@ -1,13 +1,73 @@
-# Python
+# Byte-compiled / optimized / DLL files
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
-*.egg-info/
-.venv/
-.env
-.DS_Store
+*.py[cod]
+*$py.class
 
-# VSCode / PyCharm
-.vscode/
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environments
+.venv/
+venv/
+ENV/
+env/
+env.bak/
+venv.bak/
+
+# Environment Variables
+.env
+.env.*
+
+# Generated Audio Outputs & Recordings
+*.wav
+*.mp3
+*.flac
+*.ogg
+*.raw
+*.pcm
+
+# Benchmark Dumps & Temporary Reports
+benchmark_results.json
+benchmark_summary.md
+*.log
+
+# Pytest / Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Operating System Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE & Editor Specific
 .idea/
+.vscode/
+*.swp
+*.swo
+*~
