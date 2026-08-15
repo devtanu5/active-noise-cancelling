@@ -22,6 +22,10 @@ def parse_args():
     p.add_argument("--device_in", type=str, default=None, help="Input device name or 'default'")
     p.add_argument("--device_out", type=str, default=None, help="Output device name or 'default'")
     p.add_argument("--highpass", type=float, default=None, help="High-pass cutoff Hz (0 to disable)")
+    p.add_argument("--algo", type=str, choices=["spec_sub", "wiener", "gate"], default=None, help="Noise suppression algorithm")
+    p.add_argument("--wiener_alpha", type=float, default=None, help="Wiener DD smoothing factor (0 to 1)")
+    p.add_argument("--gate_threshold_db", type=float, default=None, help="Gating threshold in dB")
+    p.add_argument("--gate_attenuation_db", type=float, default=None, help="Gating attenuation level in dB")
     p.add_argument("--config", type=str, default="config.yaml")
     p.add_argument("--list-devices", action="store_true", help="Print available devices and exit")
     return p.parse_args()
@@ -38,6 +42,10 @@ def load_config(path: str):
         "gain_smooth": 0.8,
         "device_in": "default",
         "device_out": "default",
+        "algo": "spec_sub",
+        "wiener_alpha": 0.98,
+        "gate_threshold_db": 6.0,
+        "gate_attenuation_db": -20.0,
     }
     try:
         with open(path, "r", encoding="utf-8") as f:
@@ -62,6 +70,10 @@ def main():
     if args.highpass is not None:   cfg["highpass_hz"] = args.highpass
     if args.device_in is not None:  cfg["device_in"] = args.device_in
     if args.device_out is not None: cfg["device_out"] = args.device_out
+    if args.algo is not None:                 cfg["algo"] = args.algo
+    if args.wiener_alpha is not None:         cfg["wiener_alpha"] = args.wiener_alpha
+    if args.gate_threshold_db is not None:    cfg["gate_threshold_db"] = args.gate_threshold_db
+    if args.gate_attenuation_db is not None:  cfg["gate_attenuation_db"] = args.gate_attenuation_db
 
     sr = int(cfg["samplerate"])
     frame_ms = int(cfg["frame_ms"])
@@ -74,6 +86,10 @@ def main():
         ema_alpha=cfg["ema_alpha"],
         gain_smooth=cfg["gain_smooth"],
         highpass_hz=cfg["highpass_hz"],
+        algo=cfg["algo"],
+        wiener_alpha=cfg["wiener_alpha"],
+        gate_threshold_db=cfg["gate_threshold_db"],
+        gate_attenuation_db=cfg["gate_attenuation_db"],
     )
 
     hop = ns.hop
@@ -105,6 +121,7 @@ def main():
     except Exception:
         pass
 
+    print(f"• Using Algorithm: {cfg['algo'].upper()}")
     print(f"• Using SR={sr} Hz, frame={frame_ms} ms, hop={ns.hop} samples")
     print("• Calibrating noise… Speak as little as possible.")
 

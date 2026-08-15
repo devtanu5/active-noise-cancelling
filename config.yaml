@@ -8,3 +8,7 @@ ema_alpha: 0.96        # noise tracking (closer to 1.0 = slower)
 gain_smooth: 0.8       # temporal smoothing of spectral gain
 device_in: default
 device_out: default
+algo: "spec_sub"       # default algorithm (spec_sub, wiener, gate)
+wiener_alpha: 0.98     # Wiener decision-directed smoothing
+gate_threshold_db: 6.0 # threshold in dB above noise for gating
+gate_attenuation_db: -20.0 # attenuation in dB for gated bins
